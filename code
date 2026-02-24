@@ -1,0 +1,44 @@
+from flask import Flask, render_template
+from flask_socketio import SocketIO, send
+
+app = Flask(__name__)
+socketio = SocketIO(app)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@socketio.on('message')
+def handle_message(msg):
+    send(msg, broadcast=True)
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True)
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat App</title>
+</head>
+<body>
+    <h2>Real-Time Chat</h2>
+    <input id="message">
+    <button onclick="sendMessage()">Send</button>
+    <ul id="messages"></ul>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    var socket = io();
+    function sendMessage() {
+        var msg = document.getElementById('message').value;
+        socket.send(msg);
+    }
+    socket.on('message', function(msg) {
+        var li = document.createElement("li");
+        li.innerText = msg;
+        document.getElementById("messages").appendChild(li);
+    });
+</script>
+</body>
+</html>
